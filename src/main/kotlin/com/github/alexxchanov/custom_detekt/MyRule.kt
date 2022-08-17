@@ -8,6 +8,8 @@ import io.gitlab.arturbosch.detekt.api.Issue
 import io.gitlab.arturbosch.detekt.api.Rule
 import io.gitlab.arturbosch.detekt.api.Severity
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtNamedFunction
 
 class MyRule(config: Config) : Rule(config) {
     override val issue = Issue(
@@ -17,11 +19,21 @@ class MyRule(config: Config) : Rule(config) {
         Debt.FIVE_MINS,
     )
 
+    override fun visitNamedFunction(function: KtNamedFunction) {
+        super.visitNamedFunction(function)
+        println("1")
+        report(CodeSmell(issue, Entity.Companion.from(function), "Custom message"))
+
+    }
+
+    override fun visit(root: KtFile) {
+        super.visit(root)
+        println("1")
+        report(CodeSmell(issue, Entity.Companion.from(root), "Custom message"))
+    }
+
     override fun visitClass(klass: KtClass) {
         super.visitClass(klass)
-
-        if (klass.isInner()) {
-            report(CodeSmell(issue, Entity.atName(klass), "Custom message"))
-        }
+        report(CodeSmell(issue, Entity.atName(klass), "Custom message"))
     }
 }
